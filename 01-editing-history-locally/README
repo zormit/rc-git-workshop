@@ -1,0 +1,88 @@
+# Editing History Locally
+
+To simplify, this particular workshop assumes that you're working on a single branch that does not have merge commits.
+
+## Relevant Commands
+
+- `git add`
+    - add changes to the index ("staging area" is a term that I know better, but that may have changed)
+- `git add -p`
+    - add to index using interative patch mode
+- `git commit`
+    - creates a commit from the current staging area (index / "Changes to be committed")
+- `git commit --amend`
+    - "edit" the last commit created and create a new one
+    - this takes the *new* index into account! (very helpful)
+- `git commit --fixup SHA1`
+    - creates a commit with the appropriate `fixup! <identifier>` message
+    - careful, it then selects based on the commit messsage. I'm personally used to using SHA1's instead.
+- `git reset @^`
+    - of course `git reset` can do much more, we'll start simple for this workshop
+- `git rebase -i`
+    - change a number of commits
+    - possibly consuming `fixup! SHA1...` messages
+        - using `git rebase -i --autosquash` or if configured accordingly (as I have)
+        - see `git help rebase`, then look for `--autosquash`
+
+## Remarks
+
+- amending and rebasing will most likely "change history"
+- make sure that you're only editing history that no one else relies on
+
+## Possible Workflows
+
+### Editing Commit Message
+
+*Scenario* You've realized that your commit message is not as you wanted it to be (typo)
+
+*Solution*
+- run `git commit --amend`
+- edit the message
+- save & done
+
+*Alternative Solutions*
+This one is unnecessarily complicated, but shows you another tool (rebase)
+- run `git rebase -i @^`
+- change `pick` to `edit`
+
+### Editing Commit Patch (extending it with new/undone changes)
+
+*Scenario* You've realized that your commit patch is not as you wanted it to be (small mistake). You like the commit message.
+
+*Solution*
+- edit your index (using `git add` / `git add -p`)
+- run `git commit --amend --no-edit`
+- save & done
+
+*Alternative Solutions*
+This one is unnecessarily complicated, but shows you another tool (rebase)
+- run `git rebase -i @^`
+- change `pick` to `edit`
+
+### Redoing the last commit (keeping the changes)
+
+*Scenario* You're unhappy how your commit turned out in total and amending won't do. Let's start over!
+
+*Solution*
+- `git reset @^`
+- `git add -p`
+  - (or whatever suits you to add your files)
+- `git commit`
+
+### Squashing a couple of commits together
+*Scenario* You want to put the recent three commits all together in one.
+
+It's possible with plain rebase. I usually like to take the interactive route, see next scenario.
+
+### Full force editing of whatever you came up in your latest not pushed history
+
+*Scenario* You've coded for a while, using commits as intermediate savepoints without thinking about them. Now you're about to push your changes, but you don't want the public to see the mess of the commits as they are.
+
+*Solution*
+- Assuming your branch is called `superfeat`, and it's previous history is already existing remotely
+- run `git rebase -i origin/superfeat`
+- follow the instructions of interactive rebase to rearrange your commits as you'd like to
+
+## Exercises
+
+TODO
