@@ -1,0 +1,107 @@
+# Branches are pointers
+
+Assumptions for today:
+- we'll still work locally only (remote is a thing that comes later)
+    - I have switched exercises to not "live" on this repository for this one. You're supposed to use your own fresh local repository for it :)
+- we're using git in a "nonstandard"/extreme way and try to mess with it, in order to understand the concepts independent of each other
+- I will try to do it in a more interactive manner today. I'll show things and you can follow along :) (I recommend following along, s.t. you have the right setup for the exercises)
+
+## Preparation steps. Set up our repository.
+
+% mkdir repo-2023-08-25
+% cd repo-2023-08-25
+% git init
+
+# optional. moritz needs this due to his setup:
+% git config user.email "nt4u@kpvn.de"
+
+# create first commit
+% touch README && git add README && git commit -m "first commit"
+% echo "# headline" >> README && git commit -am "second commit"
+% echo "\nproject description" >> README && git commit -am "third commit"
+
+## Concept 1: everything is tracked in `.git`
+you can do this magic trick where you delete the whole content of your repository.
+as long as
+- the `.git` directory survives
+- and the files you're deleting are committed
+you're fine!
+
+% ls
+README
+
+# confirm that all your files/changes are committed. "working tree clean"
+% git status
+On branch main
+nothing to commit, working tree clean
+
+# delete the working tree
+% rm *
+
+% ls
+% git status
+% git log
+# restore the working tree
+% git restore .
+
+### Corrollary: branches are tracked in `.git`
+- HEAD is a pointer to a branch
+- a branch is a pointer to a commit
+
+% ls .git
+
+# there are lots of things. Today we'll focus on `HEAD` and `refs`
+% cat .git/HEAD
+ref: refs/heads/main
+% ls .git/refs/heads
+main
+% cat .git/refs/heads/main
+6c3581dfadd1bbb8edca267fb310f4b5aad931cb
+% touch hello.txt && git add hello.txt && git commit -m "add hello.txt"
+% cat .git/refs/heads/main
+bbcb7b6db784564bfb490f8faa57ae522a6b92cc
+% git log -2
+commit bbcb7b6db784564bfb490f8faa57ae522a6b92cc (HEAD -> main)
+Author: Moritz Neeb <nt4u@kpvn.de>
+Date:   Fri Aug 25 13:10:13 2023 -0400
+
+    add hello.txt
+
+commit 6c3581dfadd1bbb8edca267fb310f4b5aad931cb
+Author: Moritz Neeb <nt4u@kpvn.de>
+Date:   Fri Aug 25 12:58:11 2023 -0400
+
+    third commit
+
+
+## Concept 2: different levels of abstractions in git
+- some commands are affecting only single operations and lower levels (~"plumbing")
+- some are "user friendly" but do "magic" under the hood (~"porcelain")
+- some commands affect branches, some commands affect HEAD, some commands create commits
+
+example, in the concept of branches:
+- `git branch <name>` just creates a new branch pointer to the current commit
+- `git commit` does multiple things:
+    - create 
+- `git checkout` only touches the HEAD, regardless of the branch
+- `git reset` touches the HEAD, it's branch and dependent on the options, the working directory + staging area
+
+
+## Exercises
+
+### Create a few branches
+With only using git commands (do not modify the filesystem yourself), make the refs/heads look like this:
+
+% ls .git/refs/heads
+a  b  c  d  main
+
+### Drop them again
+
+hint: git branch -d
+
+### What's the difference between git branch -d and -D?
+
+Run the following for preparation of this exercise:
+% 
+
+k
