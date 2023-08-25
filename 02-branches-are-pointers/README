@@ -12,9 +12,6 @@ Assumptions for today:
 % cd repo-2023-08-25
 % git init
 
-# optional. moritz needs this due to his setup:
-% git config user.email "nt4u@kpvn.de"
-
 # create first commit
 % touch README && git add README && git commit -m "first commit"
 % echo "# headline" >> README && git commit -am "second commit"
@@ -74,17 +71,33 @@ Date:   Fri Aug 25 12:58:11 2023 -0400
     third commit
 
 
-## Concept 2: different levels of abstractions in git
+## Concept: different levels of abstractions in git
 - some commands are affecting only single operations and lower levels (~"plumbing")
 - some are "user friendly" but do "magic" under the hood (~"porcelain")
 - some commands affect branches, some commands affect HEAD, some commands create commits
 
 example, in the concept of branches:
 - `git branch <name>` just creates a new branch pointer to the current commit
+- `git switch <branch` changes HEAD to new branch and updates working directory
 - `git commit` does multiple things:
-    - create 
+    - creates the commit
+    - moves branch to new commit, moves HEAD to new commit
 - `git checkout` only touches the HEAD, regardless of the branch
+    - does many things, dependent on how you use it
+    - we can use with `git checkout HASH`, then we go a bare commit ("detached HEAD")
+    - we can use with `git checkout main`, then we put HEAD to main
 - `git reset` touches the HEAD, it's branch and dependent on the options, the working directory + staging area
+
+
+## Concept: Detached head state
+
+We've talked about this. I might explain it at some point in writing. :D
+
+## Scenarios
+
+### "WIP commit"
+
+We've talked about this. I might explain it at some point in writing. Double WIP! :D
 
 
 ## Exercises
@@ -99,9 +112,59 @@ a  b  c  d  main
 
 hint: git branch -d
 
-### What's the difference between git branch -d and -D?
+### The difference between git branch -d and -D
 
 Run the following for preparation of this exercise:
-% 
+% git switch -c tobekept
+% echo "change" >> README && git commit -am "initial exercise commit"
+% git branch tobedeleted1
+% git switch -c tobedeleted2
+% echo "change" >> README && git commit -am "a new commit"
+% git branch tobekept2
+% git switch tobekept
 
-k
+Then
+% git log --pretty=oneline --abbrev-commit tobekept2 -2
+should look like (with different hashes):
+114c39b (tobekept2, tobedeleted2) a new commit
+bb1e858 (HEAD -> tobekept, tobedeleted1) initial exercise commit
+
+(note, for later, that we're looking at the log of tobekept2,
+but our HEAD is on tobekept)
+
+Now delete tobedeleted1:
+% git branch -d tobedeleted1
+Deleted branch tobedeleted1 (was ef01077).
+
+Then try to delete tobedeleted2:
+% git branch -d tobedeleted2
+error: The branch 'tobedeleted2' is not fully merged.
+If you are sure you want to delete it, run 'git branch -D tobedeleted2'.
+
+It complains "it's not fully merged". Okay, let's do something that looks like merging to git (??? :D)
+% git switch tobekept2
+
+% git log --pretty=oneline --abbrev-commit tobekept2 -2
+cdc361e (HEAD -> tobekept2, tobedeleted2) a new commit
+ef01077 (tobekept) initial exercise commit
+
+Then deleting #2 works:
+% git branch -d tobedeleted2
+
+What happened here?
+- git branch -d only works, if the branchname is somehow "reachable" from our current HEAD. It tries to be helpful, but saying "it's not merged". What it means is, that it's not merged to the current active branch (that HEAD points to).
+- in the deletion of tobedeleted1, it was reachable (it was the same commit as HEAD)
+- in the deletion of tobedeleted2, it was not reachable from HEAD (it only searches "downwards")
+- then we moved head to the other branch => it worked!
+
+### moving pointers without using git
+
+Now we're doing the opposite:
+- in a toy (!) repository of your choice, try manually editing the files that we've seen
+    - what happens if you edit `.git/HEAD` and put another branch name (it better exists, but of course try nonexisting ones too)
+    - edit `.git/refs/head/new-branch` and put another hash of the history.
+      - If you want to be careful, make sure you're saving the initial hash.
+- what would you do to replicate the behavior of `git reset @^ --soft`?
+
+Hint: use `git log HEAD` or `git log <branchname>` to verify your assumptions.
+observation: this manual branch/HEAD moving will not update the working directory, so git status might be confusing. The working directory will stay in whichever state you started with.
