@@ -1,0 +1,15 @@
+mkdir tmp-2023-09-07 && cd tmp-2023-09-07
+git clone git@github.com:zormit/rc-git-workshop.git
+git remote -v
+git remote --help
+git remote rename origin github/zormit
+git remote -v
+
+mkdir rc-workshop-bare && cd rc-workshop-bare
+git init --bare
+ls
+git log
+
+cd ../rc-git-workshop
+git remote add mylocal ../rc-workshop-bare
+git push mylocal main
