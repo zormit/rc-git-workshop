@@ -1,0 +1,24 @@
+- main branch is where everybody merges to
+- feature-1 is our personal local branch for this feature
+
+
+What are the three different options to merge:
+    => fast-forward (we will never have merge conflicts, just moving the "pointer")
+    => rebase something and then fast-forward
+        1. rebase
+        2. merge
+    => not fast-forward ("merge commit")
+        => this is my personal default, but I deactivated it now.
+
+
+some of the commands I used today:
+git rebase main -i
+git rebase main
+git reset @^ --soft
+git reset @^ --hard (be careful to not loose things you'd want to keep :D)
+git reset @^
+git diff @^..@
+git merge feature-1
+git cherry-pick feature-1
+git cherry-pick e122ab3
+tig
